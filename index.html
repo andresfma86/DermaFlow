@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DermaFlow — Plano de Cuidados</title>
+  <meta name="description" content="MVP — automação entre dermatologista, paciente, farmácias e laboratórios." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">💧</div>
+      <div class="title">
+        <strong>DermaFlow</strong>
+        <div class="muted">Plano de cuidados</div>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="ctrl-label">Entrar como</label>
+      <select id="roleSelect" aria-label="role">
+        <option value="patient">Paciente</option>
+        <option value="doctor">Dermatologista</option>
+      </select>
+      <select id="userSelect" aria-label="user"></select>
+      <button id="resetBtn" class="btn-ghost">Resetar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- patient welcome & main card -->
+    <section id="patientMain" class="patient-view">
+      <h1 id="greeting">Olá, Ana Paula!</h1>
+      <p class="lead">Seu plano de cuidados está pronto. Veja abaixo os próximos passos.</p>
+
+      <div class="card large">
+        <div class="card-header">
+          <div>
+            <h2>Sua Prescrição Médica</h2>
+            <div class="muted small">Emitida pela Dra. Helena Costa</div>
+          </div>
+          <div class="status-pill waiting"><span class="dot"></span>Aguardando Ação</div>
+        </div>
+
+        <div class="card-body">
+          <div class="rx-list">
+            <!-- medication cards injected here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Orçamento dos Medicamentos</h3>
+        <p class="muted">Encontramos as melhores opções para você.</p>
+        <div id="quotes" class="quotes-list">
+          <!-- quotes injected -->
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Agendamento de Exame</h3>
+        <div id="examCard" class="exam-card">
+          <!-- exam details injected -->
+        </div>
+      </div>
+    </section>
+
+    <!-- doctor view -->
+    <section id="doctorMain" class="doctor-view" style="display:none">
+      <div class="card">
+        <h2>Painel do Dermatologista</h2>
+        <p class="muted">Crie prescrições e acompanhe pacientes.</p>
+        <div class="row">
+          <button id="btnNewRx">Nova Prescrição</button>
+          <button id="btnSeed" class="btn-ghost">Carregar exemplo</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Pacientes</h3>
+        <div id="patientsList" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modal" class="modal">
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button id="modalClose" class="btn-ghost">Fechar</button>
+    </div>
+  </dialog>
+
+  <footer class="footer muted">Demo — protótipo. Integrações e dados simulados.</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
