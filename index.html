@@ -1,97 +1,278 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DermaFlow — Plano de Cuidados</title>
-  <meta name="description" content="MVP — automação entre dermatologista, paciente, farmácias e laboratórios." />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Cuidados - MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .status-pending { background-color: #FEF3C7; color: #92400E; }
+        .status-done { background-color: #D1FAE5; color: #065F46; }
+    </style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">💧</div>
-      <div class="title">
-        <strong>DermaFlow</strong>
-        <div class="muted">Plano de cuidados</div>
-      </div>
+<body class="bg-gray-50">
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full text-center">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800" id="modal-title">Ação Confirmada!</h3>
+            <p class="text-gray-600 mt-2" id="modal-message">Sua solicitação foi processada com sucesso.</p>
+            <button onclick="closeModal()" class="mt-6 w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-700 transition-colors">
+                Fechar
+            </button>
+        </div>
     </div>
-    <div class="controls">
-      <label class="ctrl-label">Entrar como</label>
-      <select id="roleSelect" aria-label="role">
-        <option value="patient">Paciente</option>
-        <option value="doctor">Dermatologista</option>
-      </select>
-      <select id="userSelect" aria-label="user"></select>
-      <button id="resetBtn" class="btn-ghost">Resetar</button>
+
+    <div class="container mx-auto max-w-2xl p-4 sm:p-6 lg:p-8">
+        
+        <!-- Cabeçalho -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Olá, Ana Paula!</h1>
+            <p class="text-gray-600 mt-1">Seu plano de cuidados está pronto. Veja abaixo os próximos passos.</p>
+        </header>
+
+        <main class="space-y-6">
+
+            <!-- Card 1: Prescrição Médica -->
+            <section id="prescricao-card" class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 fade-in">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Sua Prescrição Médica</h2>
+                        <p class="text-gray-500 text-sm mt-1">Emitida pela Dra. Helena Costa</p>
+                    </div>
+                    <div id="prescricao-status" class="status-badge status-pending">
+                        <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"></path></svg>
+                        Aguardando Ação
+                    </div>
+                </div>
+                
+                <div class="mt-6 border-t border-gray-200 pt-4 space-y-4" id="medicamentos-list">
+                    <!-- Medicamentos serão inseridos aqui pelo JS -->
+                </div>
+            </section>
+
+            <!-- Card 2: Orçamentos da Farmácia -->
+            <section id="farmacia-card" class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 fade-in" style="animation-delay: 0.1s;">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Orçamento dos Medicamentos</h2>
+                        <p class="text-gray-500 text-sm mt-1">Encontramos as melhores opções para você.</p>
+                    </div>
+                </div>
+
+                <div id="farmacia-content">
+                    <div class="mt-6 space-y-4" id="farmacias-list">
+                        <!-- Orçamentos serão inseridos aqui pelo JS -->
+                    </div>
+                </div>
+                
+                <div id="farmacia-confirmation" class="hidden mt-6 text-center">
+                     <p class="text-lg font-medium text-green-700">✅ Pedido confirmado com sucesso!</p>
+                     <p class="text-gray-600" id="farmacia-chosen-text"></p>
+                </div>
+            </section>
+
+            <!-- Card 3: Agendamento de Exames -->
+            <section id="exame-card" class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 fade-in" style="animation-delay: 0.2s;">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Agendamento de Exame</h2>
+                        <p class="text-gray-500 text-sm mt-1" id="exame-nome">--</p>
+                    </div>
+                     <div id="exame-status" class="status-badge status-pending">
+                        <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"></path></svg>
+                        Aguardando Confirmação
+                    </div>
+                </div>
+
+                <div id="exame-content">
+                    <div class="mt-6 border-t border-gray-200 pt-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="font-semibold text-blue-800">Horário Sugerido:</p>
+                            <p class="text-lg text-blue-900" id="exame-horario">--</p>
+                            <p class="text-sm text-blue-700" id="exame-local">--</p>
+                        </div>
+                        <div class="mt-4 bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800">⚠️ Instruções de Preparo:</h4>
+                            <p class="text-yellow-900 mt-1" id="exame-preparo">--</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button onclick="confirmarExame()" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            Confirmar Agendamento
+                        </button>
+                    </div>
+                </div>
+                 <div id="exame-confirmation" class="hidden mt-6 text-center">
+                     <p class="text-lg font-medium text-green-700">✅ Agendamento confirmado com sucesso!</p>
+                     <p class="text-gray-600" id="exame-confirmed-text"></p>
+                </div>
+            </section>
+        </main>
     </div>
-  </header>
 
-  <main class="container">
-    <!-- patient welcome & main card -->
-    <section id="patientMain" class="patient-view">
-      <h1 id="greeting">Olá, Ana Paula!</h1>
-      <p class="lead">Seu plano de cuidados está pronto. Veja abaixo os próximos passos.</p>
+    <script>
+        // --- DADOS FICTÍCIOS (MOCK DATA) ---
+        const mockData = {
+            paciente: {
+                nome: "Ana Paula"
+            },
+            prescricao: {
+                medico: "Dra. Helena Costa",
+                medicamentos: [
+                    {
+                        nome: "Fórmula Facial Anti-Acne",
+                        tipo: "Manipulado",
+                        uso: "Aplicar uma fina camada no rosto à noite, antes de dormir."
+                    },
+                    {
+                        nome: "Minoxidil 5% + Ativos",
+                        tipo: "Manipulado",
+                        uso: "Aplicar 20 gotas no couro cabeludo, 2 vezes ao dia."
+                    }
+                ]
+            },
+            orcamentos: [
+                {
+                    farmacia: "Farmácia A",
+                    valor: 112.50,
+                    prazo: "2 dias úteis"
+                },
+                {
+                    farmacia: "Farmácia B",
+                    valor: 105.00,
+                    prazo: "3 dias úteis"
+                }
+            ],
+            exame: {
+                nome: "Hemograma Completo",
+                laboratorio: "Laboratório Vida",
+                horarioSugerido: "15 de Setembro de 2025, às 08:00",
+                preparo: "É necessário jejum absoluto de 8 horas. A ingestão de água é permitida."
+            }
+        };
 
-      <div class="card large">
-        <div class="card-header">
-          <div>
-            <h2>Sua Prescrição Médica</h2>
-            <div class="muted small">Emitida pela Dra. Helena Costa</div>
-          </div>
-          <div class="status-pill waiting"><span class="dot"></span>Aguardando Ação</div>
-        </div>
+        // --- LÓGICA DA APLICAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPrescription(mockData.prescricao);
+            renderPharmacyQuotes(mockData.orcamentos);
+            renderExamSchedule(mockData.exame);
+        });
 
-        <div class="card-body">
-          <div class="rx-list">
-            <!-- medication cards injected here -->
-          </div>
-        </div>
-      </div>
+        function renderPrescription(prescricao) {
+            const list = document.getElementById('medicamentos-list');
+            list.innerHTML = '';
+            prescricao.medicamentos.forEach(med => {
+                const item = `
+                    <div class="border border-gray-200 p-4 rounded-lg">
+                        <p class="font-semibold text-gray-800">${med.nome}</p>
+                        <p class="text-sm text-gray-500">${med.tipo}</p>
+                        <p class="text-gray-700 mt-2">${med.uso}</p>
+                    </div>
+                `;
+                list.innerHTML += item;
+            });
+        }
 
-      <div class="card">
-        <h3>Orçamento dos Medicamentos</h3>
-        <p class="muted">Encontramos as melhores opções para você.</p>
-        <div id="quotes" class="quotes-list">
-          <!-- quotes injected -->
-        </div>
-      </div>
+        function renderPharmacyQuotes(orcamentos) {
+            const list = document.getElementById('farmacias-list');
+            list.innerHTML = '';
+            orcamentos.forEach((orc, index) => {
+                const item = `
+                    <div class="flex items-center justify-between border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div>
+                            <p class="font-semibold text-lg text-gray-800">${orc.farmacia}</p>
+                            <p class="text-gray-600">R$ ${orc.valor.toFixed(2).replace('.', ',')}</p>
+                            <p class="text-sm text-gray-500">Prazo: ${orc.prazo}</p>
+                        </div>
+                        <button onclick="escolherFarmacia(${index})" class="bg-green-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Escolher
+                        </button>
+                    </div>
+                `;
+                list.innerHTML += item;
+            });
+        }
+        
+        function renderExamSchedule(exame) {
+            document.getElementById('exame-nome').innerText = exame.nome;
+            document.getElementById('exame-horario').innerText = exame.horarioSugerido;
+            document.getElementById('exame-local').innerText = `Local: ${exame.laboratorio}`;
+            document.getElementById('exame-preparo').innerText = exame.preparo;
+        }
 
-      <div class="card">
-        <h3>Agendamento de Exame</h3>
-        <div id="examCard" class="exam-card">
-          <!-- exam details injected -->
-        </div>
-      </div>
-    </section>
+        function escolherFarmacia(index) {
+            const farmaciaEscolhida = mockData.orcamentos[index];
+            
+            document.getElementById('farmacia-content').classList.add('hidden');
+            document.getElementById('farmacia-confirmation').classList.remove('hidden');
+            document.getElementById('farmacia-chosen-text').innerText = `Você receberá atualizações sobre seu pedido com a ${farmaciaEscolhida.farmacia}.`;
+            
+            // Atualiza o status da prescrição
+            const statusBadge = document.getElementById('prescricao-status');
+            statusBadge.classList.remove('status-pending');
+            statusBadge.classList.add('status-done');
+            statusBadge.innerHTML = `<svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Concluído`;
 
-    <!-- doctor view -->
-    <section id="doctorMain" class="doctor-view" style="display:none">
-      <div class="card">
-        <h2>Painel do Dermatologista</h2>
-        <p class="muted">Crie prescrições e acompanhe pacientes.</p>
-        <div class="row">
-          <button id="btnNewRx">Nova Prescrição</button>
-          <button id="btnSeed" class="btn-ghost">Carregar exemplo</button>
-        </div>
-      </div>
+            showModal('Pedido Confirmado!', `Seu pedido na ${farmaciaEscolhida.farmacia} foi confirmado e já está em preparação.`);
+        }
 
-      <div class="card">
-        <h3>Pacientes</h3>
-        <div id="patientsList" class="list"></div>
-      </div>
-    </section>
-  </main>
+        function confirmarExame() {
+            const exame = mockData.exame;
+            document.getElementById('exame-content').classList.add('hidden');
+            document.getElementById('exame-confirmation').classList.remove('hidden');
+            document.getElementById('exame-confirmed-text').innerText = `Lembretes serão enviados antes de ${exame.horarioSugerido}.`;
 
-  <dialog id="modal" class="modal">
-    <div id="modalBody"></div>
-    <div class="modal-actions">
-      <button id="modalClose" class="btn-ghost">Fechar</button>
-    </div>
-  </dialog>
+            // Atualiza o status do exame
+            const statusBadge = document.getElementById('exame-status');
+            statusBadge.classList.remove('status-pending');
+            statusBadge.classList.add('status-done');
+            statusBadge.innerHTML = `<svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Confirmado`;
+            
+            showModal('Agendamento Confirmado!', `Seu exame no ${exame.laboratorio} para o dia ${exame.horarioSugerido} está confirmado.`);
+        }
+        
+        // Funções do Modal
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+            document.getElementById('confirmation-modal').classList.add('flex');
+        }
 
-  <footer class="footer muted">Demo — protótipo. Integrações e dados simulados.</footer>
+        function closeModal() {
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            document.getElementById('confirmation-modal').classList.remove('flex');
+        }
 
-  <script src="app.js"></script>
+    </script>
 </body>
 </html>
+
